@@ -56,8 +56,10 @@ return [
         'class' => 'yii\filters\AccessControl',
         'except' => ['site/login', 'site/error'],
         'rules' => [
-            'allow' => true,
-            'roles' => ['@'],
+            [
+                'allow' => true,
+                'roles' => ['@'],
+            ]
         ],
     ],
     'params' => $params,

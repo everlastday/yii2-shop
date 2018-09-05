@@ -24,7 +24,7 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    use InstantiateTrait;
+    //use InstantiateTrait;
 
     const STATUS_DELETED = 0;
     const STATUS_ACTIVE = 10;
@@ -39,6 +39,11 @@ class User extends ActiveRecord implements IdentityInterface
         $user->status = self::STATUS_ACTIVE;
         $user->generateAuthKey();
         return $user;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
     }
 
     /**

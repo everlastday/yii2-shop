@@ -1,7 +1,7 @@
 <?php
-namespace common\models;
 
-use common\entities\InstantiateTrait;
+namespace common\entities;
+
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;

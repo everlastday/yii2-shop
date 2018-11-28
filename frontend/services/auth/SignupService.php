@@ -9,23 +9,54 @@ class SignupService
 {
     public function signup(SignupForm $form): User
     {
-//        if(User::find()->andWhere(['username' => $form->username])) {
-//            throw new \DomainException('Username already exists');
-//        }
-//
-//        if(User::find()->andWhere(['email' => $form->email])) {
-//            throw new \DomainException('Email already exists');
-//        }
-
-        $user = User::signup(
+        $user = User::requestSignup(
             $form->username,
             $form->email,
             $form->password
         );
 
-        if (!$user->save()) {
-            throw new \RuntimeException('Saving error.');
+        $this->save($user);
+
+        $sent = $this->mailer->compose(
+            ['html' => 'emailConfirmToken-html', 'text' => 'emailConfirmToken-text'],
+            ['user' => $user]
+        )->setTo($form->email)
+            ->setSubject('Signup confirm for ' . \Yii::$app->name)
+            ->send();
+
+        if (!$sent) {
+            throw new \RuntimeException('Email sending error.');
+        }
+    }
+
+    public function confirm($token): void
+    {
+        if (empty($token)) {
+            throw new \DomainException('Empty confirm token');
+        }
+
+        $user = $this->getByEmailConfirmToken($token);
+
+        $user->confirmSignup();
+
+        $this->save($user);
+    }
+
+
+    private function getByEmailConfirmToken(string $token): User
+    {
+        $user = User::findOne(['email_confirm_token' => $token]);
+        if (!$user) {
+            throw new \DomainException('User not found.');
         }
         return $user;
     }
+
+    private function save(User $user): void
+    {
+        if (!$user->save()) {
+            throw new \RuntimeException('Saving error.');
+        }
+    }
+
 }
